@@ -1,0 +1,26 @@
+Noise analysis
+.include main.txt
+Vplus Vin1 GND dc 0.75 ac 0
+Vminus Vin2 GND dc 0.75 ac 0
+cl1 Vout1 0 0.5p
+Cl2 Vout2 0 0.5p
+xmain Vin1 Vin2 Vout1 Vout2 main
+
+********************************************
+.noise v(vout2,vout1) vplus dec 100 1 250Meg
+.control
+run
+print inoise_total onoise_total
+set hcopydevtype = postscript
+set hcopypscolor = 1
+set hcopywidth=800
+set hcopyheight=600
+setplot noise1
+plot inoise_spectrum
+hardcopy Inoise.ps inoise_spectrum title 'Input Noise'
+write test_noise1.raw all
+*setplot noise2
+*write test_noise2.raw all
+*meas corner_f when onoise_spectrum = 1
+.endc
+.end

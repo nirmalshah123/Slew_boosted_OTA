@@ -1,0 +1,40 @@
+Composite main stage with frequency compensation
+
+.include main.txt
+cl1 Vout1 0 0.5p
+Cl2 Vout2 0 0.5p
+x1  vin1 vin2 vout1 vout2 main
+**************slew rate setup***************
+.param C2 = 0.05p
+.param C1 = 0.045p
+.param Rcm = 5meg
+Vplus Vcm1 GND 0.75
+Vminus Vcm2 GND 0.75
+*Vsq2 vsq2 0 -0.25
+C11 vout1 vin1 {C1}
+C12 vout2 vin2 {C1}
+C21 vin1 vsq1 {C2}
+C22 vin2 0 {C2}
+Rcmin1 Vcm1 vin1 {Rcm}
+Rcmin2 Vcm2 vin2 {Rcm}
+
+Vsq vsq1 0 PULSE(0 0.5 0ns 1ps 1ps 400ns 400ns)
+********************************************
+
+.control
+tran 10ps 400ns
+run
+let vdiff2 = v(vout2) - v(vout1)
+set hcopydevtype = postscript
+set hcopypscolor = 1
+set hcopywidth=800
+set hcopyheight=600
+plot vsq1 vdiff2
+hardcopy compositeMainSettling.ps vsq1 vdiff2 title 'Settling Time Pseudo AB amplifier'
++ylabel 'Voltage(mV)'
+meas tran settle FIND vdiff2 AT=300ns
+let one_percent = settle*0.99
+print one_percent
+meas tran teval WHEN vdiff2=one_percent cross=1
+.endc
+.end

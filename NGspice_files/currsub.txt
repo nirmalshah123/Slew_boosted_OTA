@@ -1,0 +1,16 @@
+***********************************************************
+*This is a subckt which would give current = 50uA
+*Directly attach between Vdd and Drain of current mirror
+***********************************************************
+
+.subckt currRef Vdd Vg67
+.include cmos_130nm.txt
+
+M5 Vg5 Vg5 GND GND nmos W=3u L=1u
+M3 vg12 vg34 Vg5 GND nmos W=3u L=1u
+M4 vg34 vg34 Vs4 GND nmos W=0.75u L=1u
+R1 Vs4 GND 6900
+M2 vg34 vg12 Vdd Vdd pmos W=200u L=1u
+M1 vg12 vg12 Vdd Vdd pmos W=200u L=1u
+M_mirr Vg67 vg12 Vdd Vdd pmos W= 400u L= 2u
+.ends

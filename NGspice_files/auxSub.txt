@@ -1,0 +1,55 @@
+***********************************************************
+*This is a subckt of aux
+***********************************************************
+
+.subckt auxAmp Vdd Vin1 Vin2 Vout2 vout1 
+.include cmos_130nm.txt
+.include currsub.txt
+.param rb=1.6k
+.param cb=16p
+
+.param MSB_w = 10u
+.param MSB_l = 0.16u
+
+.param MSBP_w = 50u
+.param MSBP_l = 0.5u
+
+.param MSBN_w = 100u
+.param MSBN_l = 0.18u
+
+MSB1 vsbd1 Vin1 Vsbs 0 nmos w={MSB_w} l={MSB_l}
+MSB2 vsbd2 Vin2 Vsbs 0 nmos w={MSB_w} l={MSB_l}
+
+MSBP1 vout2 crbp1 Vdd Vdd pmos w={MSBP_w} l={MSBP_l}
+MSBP2 vout1 crbp2 Vdd Vdd pmos w={MSBP_w} l={MSBP_l}
+
+MSBN1 vout2 crbn1 0 0 nmos w={MSBN_w} l={MSBN_l}
+MSBN2 vout1 crbn2 0 0 nmos w={MSBN_w} l={MSBN_l}
+
+Rbp1 crbp1 Vbp1 {rb}
+Rbp2 crbp2 Vbp2 {rb}
+Rbn1 crbn1 Vbn1 {rb}
+Rbn2 crbn2 Vbn2 {rb}
+
+Cbp1 crbp1 vsbd1 {cb}
+Cbp2 crbp2 vsbd2 {cb}
+Cbn1 crbn1 vsbd1 {cb}
+Cbn2 crbn2 vsbd2 {cb}
+
+RSB1 vsbd1 vdd 1k
+RSB2 vsbd2 vdd 1k
+
+xSB1 Vdd vsbmirr currRef
+MSBmirr vsbmirr vsbmirr 0 0 nmos w=6u l=0.4u
+MSBb Vsbs vsbmirr 0 0 nmos w=60u l=0.4u
+.include vbp.txt
+.include vbn.txt
+xvbp1 vbp1 0 vbp
+xvbp2 vbp2 0 vbp
+xvbn1 vbn1 0 vbn
+xvbn2 vbn2 0 vbn
+*Vbp1 vbp1 0 0.75
+*Vbn1 vbn1 0 0.35
+*Vbp2 vbp2 0 0.75
+*Vbn2 vbn2 0 0.35
+.ends

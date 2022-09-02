@@ -1,0 +1,28 @@
+*CMRR composite_only
+
+.include main.txt
+
+Vcm 1 0 dc 0.75 ac 1
+Vplus Vin1 1 dc 10m
+Vminus 1 Vin2 dc 10m
+cl1 Vout1 0 0.05p
+cl2 Vout2 0 0.05p
+x1 Vin1 Vin2 Vout1 Vout2 main
+
+.include auxSub.txt
+xAux Vdd Vin1 Vin2 Vout2 Vout1 auxAmp
+
+.control
+ac dec 100 1 1000T
+let vdiff = v (vout1) - v (vout2)
+meas ac dcgain find vdb(vdiff) at = 10
+set hcopydevtype = postscript
+set hcopypscolor = 1
+set hcopywidth=800
+set hcopyheight=600
+hardcopy slewboostingCMRR.ps vdb(vdiff) title 'CMRR Pseudo AB'
++ ylabel '|Gain|'
+hardcopy slewboostingCMRR_phase.ps vp(vdiff)*57.29 title 'Phase'
++ ylabel 'Degrees'
+.endc
+.end

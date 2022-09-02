@@ -1,0 +1,48 @@
+Composite main stage Slew rate
+*Sanket - 190070057
+*Nirmal - 190100085
+.include main.txt
+cl1 Vout1 0 0.5p
+Cl2 Vout2 0 0.5p
+x1  vin1 vin2 vout1 vout2 main
+
+**************slew rate setup***************
+.param C2 = 0.05p
+.param C1 = 0.045p
+.param Rcm = 5meg
+Vplus Vcm1 GND 0.75
+Vminus Vcm2 GND 0.75
+*Vsq2 vsq2 0 -0.25
+C11 vout1 vin1 {C1}
+C12 vout2 vin2 {C1}
+C21 vin1 vsq1 {C2}
+C22 vin2 0 {C2}
+Rcmin1 Vcm1 vin1 {Rcm}
+Rcmin2 Vcm2 vin2 {Rcm}
+
+Vsq vsq1 0 PULSE(0 0.5 0ns 1ps 1ps 100ns 200ns)
+********************************************
+
+.control
+tran 1ps 200ns
+run
+let vdiff2 = v(vout2) - v(vout1)
+set hcopydevtype = postscript
+set hcopypscolor = 1
+set hcopywidth=800
+set hcopyheight=600
+plot vsq1 vdiff2
+hardcopy compositeMainSlew.ps vsq1 vdiff2 title 'Slew Rate Pseudo AB amplifier'
++ylabel 'Voltage(mV)'
+meas tran slew_max MAX vdiff2
+meas tran slew_min MIN vdiff2
+meas tran t_srplus when vdiff2=0.3 cross=1
+meas tran t_srminus trig vdiff2 val=0.5 fall=1 targ vdiff2 val=0.2 fall=1
+let srplus = 0.3/t_srplus
+let srminus = 0.3/t_srminus
+print srplus
+print srminus
+print {srminus/2} + {srplus/2}
+
+.endc
+.end

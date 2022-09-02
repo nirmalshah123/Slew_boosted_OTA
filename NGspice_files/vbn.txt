@@ -1,0 +1,20 @@
+*vbn_0.35V subckt
+.subckt vbn vg12 Vref
+
+.include cmos_130nm.txt
+.include currsub.txt
+
+M1 vg12 vg12 Vref Vref NMOS W=37u L=0.4u
+v1 vdd Vref 1.5
+x1 vdd vg12 currRef
+*M2 vg3 vg12 Vref Vref NMOS W=7u L=0.4u
+*M3 vg3 vg3 vdd vdd PMOS W=4.436u L=1u
+.ends
+
+*x1 vbp1 0 vbp
+
+*.control
+*op
+*print v(vbp1)
+*.endc
+*.end

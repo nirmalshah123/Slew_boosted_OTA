@@ -1,0 +1,115 @@
+Composite main stage + aux stage with frequency compensation
+
+.param R_CMFB =  4Meg
+.param rz = 370
+.param cz = 0.55p
+.param rb = 10k
+.param cb = 0.06p
+.param m9_w = 30u
+.param m9_l = 0.15u
+
+.param m11_w = 10u
+.param m11_l = 0.15u
+
+.param m15_w = 7u
+.param m15_l = 0.4u
+
+.param m13_w = 5u
+.param m13_l = 0.15u
+
+.param m8_w = 180.25u
+.param m8_l = 0.25u
+
+.param m4_w = 30.8u
+.param m4_l = 0.4u
+
+.include cmos_130nm.txt
+.include currsub.txt
+
+V1 Vdd GND 1.5
+*Generating Vb1=1.1V
+Mvb1_1 Vb1 int20 0 0 NMOS W=7u L=0.4u
+Mvb1_2 Vb1 Vb1 vdd vdd PMOS W=49.5u L=0.5u
+
+*Generating Vb2=1V
+Mvb2_1 Vb2 int20 0 0 NMOS W=7u L=0.4u
+Mvb2_2 Vb2 Vb2 vdd vdd PMOS W=15.05u L=0.5u
+Vplus Vin1 GND dc 0.75 ac 1
+Vminus Vin2 GND dc 0.75 ac 0
+
+*Current reference
+x1 Vdd int20 currRef
+MiRef int20 int20 GND GND nmos W=7u L=0.4u
+
+
+************************TELESCOPIC************
+MSS int30 int20 GND GND nmos W=63u L=0.4u
+vichk int30 int8 0
+R1 CMFB1 int19 4Meg
+R2 int18 CMFB1 4Meg
+M8 Vs6 CMFB1 Vdd Vdd pmos W={m8_w} L={m8_l}
+M7 int16 CMFB1 Vdd Vdd pmos W={m8_w} L={m8_l}
+M5 int18 Vb2 int16 int16 pmos W={m8_w} L={m8_l}
+M6 int19 Vb2 Vs6 Vs6 pmos W={m8_w} L={m8_l}
+M4 int19 Vb1 Vd2 GND nmos W={m4_w} L={m4_l}
+M3 int18 Vb1 int9 GND nmos W={m4_w} L={m4_l}
+M2 Vd2 Vin2 int8 GND nmos W={m4_w} L={m4_l}
+M1 int9 Vin1 int8 GND nmos W={m4_w} L={m4_l}
+*********************************************
+
+**************AB Amplifier*****************
+*Generating Vb3
+Mvb3_1 V12 int20 0 0 NMOS W=7u L=0.4u
+Mvb3_2 V12 V12 vdd vdd PMOS W=4.218u L=1u
+R3 CMFB Vout1 {R_CMFB}
+Rz1 int19 rzcz1 {rz}
+Cz1 rzcz1 vout1 {cz}
+Rb1 V12 Vg12 {rb}
+Cb1 Vg12 int19 {cb}
+cl1 Vout1 0 0.5p
+M9 Vout1 int19 Vdd Vdd pmos W={m9_w} L={m9_l}
+M11 Vout1 Vg12 GND GND nmos W={m11_w} L={m11_l}
+M13 Vout1 CMFB Vdd Vdd pmos W={m13_w} L={m13_l}
+M15 Vout1 int20 GND GND nmos W={m15_w} L={m15_l}
+********************************************
+
+**************AB Amplifier*****************
+*Generating Vb3
+Mvb3_3 v11 int20 0 0 NMOS W=7u L=0.4u
+Mvb3_4 v11 v11 vdd vdd PMOS W=4.218u L=1u
+R4 CMFB Vout2 {R_CMFB}
+Rz2 int18 rzcz2 {rz}
+Cz2 rzcz2 vout2 {cz}
+Rb2 V11 Vg11 {rb}
+Cb2 Vg11 int18 {cb}
+Cl2 Vout2 0 0.5p
+M10 Vout2 int18 Vdd Vdd pmos W={m9_w} L={m9_l}
+M12 Vout2 Vg11 GND GND nmos W={m11_w} L={m11_l}
+M14 Vout2 CMFB Vdd Vdd pmos W={m13_w} L={m13_l}
+M16 Vout2 int20 GND GND nmos W={m15_w} L={m15_l}
+********************************************
+
+**********aux*******************************
+.include auxSub.txt
+xAux Vdd Vin1 Vin2 Vout2 Vout1 auxAmp
+********************************************
+
+.ac dec 100 1 1000T
+.control
+run
+let vdiff = {v (vout2) - v (vout1)}
+set hcopydevtype = postscript
+set hcopypscolor = 1
+set hcopywidth=800
+set hcopyheight=600
+*plot vdb(vdiff)
+*plot vp(vdiff)*57.29
+hardcopy slewboostingfreq.ps vdb(vdiff) title 'DC Gain'
++ ylabel '|Gain|'
+hardcopy slewboostingfreq_phase.ps vp(vdiff)*57.29 title 'Phase'
++ ylabel 'Degrees'
+meas ac dcgain find vdb(vdiff) at = 10
+meas ac phase find vp(vdiff) when vdb(vdiff)=0
+meas ac 0db_f when vdb(vdiff)=0
+.endc
+.end

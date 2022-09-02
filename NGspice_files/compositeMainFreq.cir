@@ -1,0 +1,35 @@
+Composite main stage with frequency compensation
+* Sanket - 190070057
+* Nirmal - 190100085
+
+
+.include main.txt
+*Subcircuit of Pseudo class AB amplifier
+
+Vplus Vin1 GND dc 0.75 ac 1
+Vminus Vin2 GND dc 0.75 ac 0
+cl1 Vout1 0 0.5p
+Cl2 Vout2 0 0.5p
+x1 Vin1 Vin2 Vout1 Vout2 main
+
+**********************Analysis*****************
+.ac dec 100 1 1000T
+.control
+run
+let vdiff = {v (vout2) - v (vout1)}
+set hcopydevtype = postscript
+set hcopypscolor = 1
+set hcopywidth=800
+set hcopyheight=600
+
+*plot vdb(vdiff) title Pseudo_class_AB_amplifier
+hardcopy compositeMainFreq.ps vdb(vdiff) title 'DC Gain'
++ ylabel '|Gain|'
+*plot vp(vdiff)*57.29 title Pseudo_class_AB_amplifier
+hardcopy compositeMainFreq_phase.ps vdb(vdiff) title 'Phase'
++ ylabel 'Degrees'
+meas ac dcgain find vdb(vdiff) at = 10
+meas ac phase find vp(vdiff) when vdb(vdiff)=0
+meas ac 0db_f when vdb(vdiff)=0
+.endc
+.end
